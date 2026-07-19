@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0e27">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>وكيل الاستثمار الذكي</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="screen active">
+        <div class="splash-content">
+            <div class="splash-icon">
+                <svg viewBox="0 0 100 100" width="80" height="80">
+                    <defs>
+                        <linearGradient id="splashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4aa"/>
+                            <stop offset="100%" style="stop-color:#00b894"/>
+                        </linearGradient>
+                    </defs>
+                    <rect x="10" y="10" width="80" height="80" rx="20" fill="url(#splashGrad)"/>
+                    <polyline points="25,65 40,45 55,55 75,30" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h1 class="splash-title">وكيل الاستثمار الذكي</h1>
+            <p class="splash-subtitle">مستشارك المالي الشخصي</p>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="screen">
+        <div class="app-header">
+            <div class="header-left">
+                <h2>محفظتي الاستثمارية</h2>
+                <p class="header-date" id="current-date"></p>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" onclick="app.openScreen('settings')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="app.showNotifications()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="badge" id="notif-badge">3</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="scroll-content">
+            <!-- Market Ticker -->
+            <div class="market-ticker" id="market-ticker"></div>
+
+            <!-- Portfolio Summary Card -->
+            <div class="summary-card">
+                <div class="summary-header">
+                    <span class="summary-label">إجمالي رأس المال</span>
+                    <span class="summary-badge" id="roi-badge">+18.5%</span>
+                </div>
+                <div class="summary-value" id="total-value">$125,430</div>
+                <div class="summary-details">
+                    <span>الأرباح: <b class="profit" id="total-profit">+$19,530</b></span>
+                    <span>النقد: <b class="cash" id="cash-balance">$12,000</b></span>
+                </div>
+                <div class="sparkline-container">
+                    <canvas id="sparkline-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-label">الربح اليومي</div>
+                    <div class="stat-value profit" id="daily-profit">+$1,480</div>
+                    <div class="stat-sub">+1.2%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">الربح الشهري</div>
+                    <div class="stat-value profit" id="monthly-profit">+$8,230</div>
+                    <div class="stat-sub">هذا الشهر</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">عدد الأصول</div>
+                    <div class="stat-value" id="asset-count">4</div>
+                    <div class="stat-sub">أصل</div>
+                </div>
+            </div>
+
+            <!-- Performance Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>أداء المحفظة</h3>
+                    <div class="period-selector">
+                        <button class="period-btn active" data-period="1M">1ش</button>
+                        <button class="period-btn" data-period="3M">3ش</button>
+                        <button class="period-btn" data-period="6M">6ش</button>
+                        <button class="period-btn" data-period="1Y">1س</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performance-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Asset Allocation -->
+            <div class="chart-card">
+                <h3>توزيع الأصول</h3>
+                <div class="allocation-container">
+                    <div class="donut-chart-container">
+                        <canvas id="allocation-chart"></canvas>
+                    </div>
+                    <div class="allocation-legend" id="allocation-legend"></div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="insights-card" id="ai-insights">
+                <div class="insights-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2">
+                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    <span>رؤى الذكاء الاصطناعي</span>
+                    <span class="insights-count">3 فرص</span>
+                </div>
+                <div class="insights-list" id="insights-list"></div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="transactions-card">
+                <div class="transactions-header">
+                    <h3>العمليات الأخيرة</h3>
+                    <button class="text-btn" onclick="app.openScreen('transactions')">عرض الكل</button>
+                </div>
+                <div class="transactions-list" id="transactions-list"></div>
+            </div>
+
+            <div class="bottom-spacer"></div>
+        </div>
+    </div>
+
+    <!-- Assets Screen -->
+    <div id="assets-screen" class="screen">
+        <div class="app-header">
+            <button class="icon-btn back-btn" onclick="app.goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <h2>إدارة الأصول</h2>
+            <div style="width:40px"></div>
+        </div>
+        <div class="scroll-content">
+            <div class="assets-list" id="assets-list"></div>
+            <button class="add-asset-btn" onclick="app.showAddAssetModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                <span>إضافة أصل جديد</span>
+            </button>
+            <div class="bottom-spacer"></div>
+        </div>
+    </div>
+
+    <!-- Market Screen -->
+    <div id="market-screen" class="screen">
+        <div class="app-header">
+            <button class="icon-btn back-btn" onclick="app.goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <h2>السوق</h2>
+            <div style="width:40px"></div>
+        </div>
+        <div class="scroll-content">
+            <div class="search-bar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" id="market-search" placeholder="ابحث عن سهم..." oninput="app.searchMarket(this.value)">
+            </div>
+            <div class="market-indices" id="market-indices"></div>
+            <button class="scan-btn" onclick="app.scanOpportunities()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+                <span>فحص الفرص بالذكاء الاصطناعي</span>
+            </button>
+            <div class="market-list" id="market-list"></div>
+            <div class="bottom-spacer"></div>
+        </div>
+    </div>
+
+    <!-- AI Chat Screen -->
+    <div id="chat-screen" class="screen">
+        <div class="app-header">
+            <button class="icon-btn back-btn" onclick="app.goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <div class="chat-header-title">
+                <div class="online-dot"></div>
+                <span>مستشارك المالي الذكي</span>
+            </div>
+            <button class="icon-btn" onclick="app.clearChat()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+            </button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="welcome-message">
+                <div class="welcome-icon">
+                    <svg viewBox="0 0 100 100" width="60" height="60">
+                        <defs>
+                            <linearGradient id="welcomeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00d4aa;stop-opacity:0.3"/>
+                                <stop offset="100%" style="stop-color:#00b894;stop-opacity:0.3"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="40" fill="url(#welcomeGrad)"/>
+                        <path d="M35 55c0-8 7-15 15-15s15 7 15 15" fill="none" stroke="#00d4aa" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="42" cy="42" r="3" fill="#00d4aa"/>
+                        <circle cx="58" cy="42" r="3" fill="#00d4aa"/>
+                    </svg>
+                </div>
+                <h3>مرحباً! أنا مستشارك المالي الذكي</h3>
+                <p>يمكنك سؤالي عن أي شيء يتعلق باستثماراتك</p>
+                <div class="quick-questions">
+                    <button onclick="app.sendQuickQuestion('هل يوجد استثمار أفضل اليوم؟')">هل يوجد استثمار أفضل اليوم؟</button>
+                    <button onclick="app.sendQuickQuestion('هل تنصح بشراء الذهب؟')">هل تنصح بشراء الذهب؟</button>
+                    <button onclick="app.sendQuickQuestion('هل من الأفضل الاحتفاظ بالنقد؟')">هل من الأفضل الاحتفاظ بالنقد؟</button>
+                    <button onclick="app.sendQuickQuestion('ما توقعات الأسبوع القادم؟')">ما توقعات الأسبوع القادم؟</button>
+                    <button onclick="app.sendQuickQuestion('كيف يمكن زيادة أرباحي؟')">كيف يمكن زيادة أرباحي؟</button>
+                    <button onclick="app.sendQuickQuestion('حلل محفظتي الحالية')">حلل محفظتي الحالية</button>
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="اكتب سؤالك هنا..." onkeypress="if(event.key==='Enter')app.sendMessage()">
+            <button class="send-btn" onclick="app.sendMessage()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="settings-screen" class="screen">
+        <div class="app-header">
+            <button class="icon-btn back-btn" onclick="app.goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <h2>الإعدادات</h2>
+            <div style="width:40px"></div>
+        </div>
+        <div class="scroll-content">
+            <div class="settings-section">
+                <h3>مفتاح Claude API</h3>
+                <div class="api-key-input">
+                    <input type="password" id="claude-api-key" placeholder="sk-ant-api03-...">
+                    <button onclick="app.toggleApiKeyVisibility()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+                <p class="setting-hint">احصل على مفتاح من: console.anthropic.com (~$20/شهر)</p>
+                <button class="save-btn" onclick="app.saveApiKey()">حفظ المفتاح</button>
+            </div>
+
+            <div class="settings-section">
+                <h3>إعدادات المخاطرة</h3>
+                <div class="setting-item">
+                    <label>رأس المال الإجمالي ($)</label>
+                    <input type="number" id="total-capital" value="100000">
+                </div>
+                <div class="setting-item">
+                    <label>مستوى المخاطرة</label>
+                    <div class="risk-selector">
+                        <button class="risk-btn" data-risk="low" onclick="app.setRiskLevel('low')">منخفض</button>
+                        <button class="risk-btn active" data-risk="medium" onclick="app.setRiskLevel('medium')">متوسط</button>
+                        <button class="risk-btn" data-risk="high" onclick="app.setRiskLevel('high')">مرتفع</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>التفضيلات</h3>
+                <label class="toggle-item">
+                    <span>توافق شرعي</span>
+                    <input type="checkbox" id="sharia-compliant" onchange="app.toggleSetting('sharia')">
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="toggle-item">
+                    <span>السماح بالعملات الرقمية</span>
+                    <input type="checkbox" id="allow-crypto" onchange="app.toggleSetting('crypto')">
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="toggle-item">
+                    <span>إعادة الاستثمار التلقائي</span>
+                    <input type="checkbox" id="auto-reinvest" checked onchange="app.toggleSetting('reinvest')">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-section danger">
+                <h3>منطقة الخطر</h3>
+                <button class="danger-btn" onclick="app.clearAllData()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                    مسح جميع البيانات
+                </button>
+            </div>
+            <div class="bottom-spacer"></div>
+        </div>
+    </div>
+
+    <!-- Transactions Screen -->
+    <div id="transactions-screen" class="screen">
+        <div class="app-header">
+            <button class="icon-btn back-btn" onclick="app.goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <h2>سجل العمليات</h2>
+            <div style="width:40px"></div>
+        </div>
+        <div class="scroll-content">
+            <div class="transactions-filter">
+                <button class="filter-btn active" onclick="app.filterTransactions('all')">الكل</button>
+                <button class="filter-btn" onclick="app.filterTransactions('buy')">شراء</button>
+                <button class="filter-btn" onclick="app.filterTransactions('sell')">بيع</button>
+                <button class="filter-btn" onclick="app.filterTransactions('deposit')">إيداع</button>
+            </div>
+            <div class="transactions-list-full" id="transactions-list-full"></div>
+            <div class="bottom-spacer"></div>
+        </div>
+    </div>
+
+    <!-- Add Asset Modal -->
+    <div id="add-asset-modal" class="modal">
+        <div class="modal-overlay" onclick="app.closeModal('add-asset-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>إضافة أصل جديد</h3>
+                <button class="close-btn" onclick="app.closeModal('add-asset-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>رمز السهم</label>
+                    <input type="text" id="asset-symbol" placeholder="AAPL" oninput="this.value=this.value.toUpperCase()">
+                </div>
+                <div class="form-group">
+                    <label>الكمية</label>
+                    <input type="number" id="asset-quantity" placeholder="10" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>سعر الشراء ($)</label>
+                    <input type="number" id="asset-price" placeholder="150.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>نوع الأصل</label>
+                    <select id="asset-type">
+                        <option value="stocks">أسهم</option>
+                        <option value="bonds">سندات</option>
+                        <option value="gold">ذهب</option>
+                        <option value="crypto">عملات رقمية</option>
+                        <option value="commodities">سلع</option>
+                        <option value="realestate">عقارات</option>
+                    </select>
+                </div>
+                <button class="submit-btn" onclick="app.addAsset()">إضافة الأصل</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="notifications-modal" class="modal">
+        <div class="modal-overlay" onclick="app.closeModal('notifications-modal')"></div>
+        <div class="modal-content notifications-content">
+            <div class="modal-header">
+                <h3>التنبيهات</h3>
+                <button class="close-btn" onclick="app.closeModal('notifications-modal')">&times;</button>
+            </div>
+            <div class="notifications-list" id="notifications-list"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <button class="nav-btn active" data-screen="dashboard" onclick="app.openScreen('dashboard')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <span>الرئيسية</span>
+        </button>
+        <button class="nav-btn" data-screen="assets" onclick="app.openScreen('assets')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.21 15.89A10 10 0 118 2.83"/>
+                <path d="M22 12A10 10 0 0012 2v10z"/>
+            </svg>
+            <span>الأصول</span>
+        </button>
+        <button class="nav-btn nav-btn-main" onclick="app.openScreen('chat')">
+            <div class="nav-main-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                </svg>
+            </div>
+        </button>
+        <button class="nav-btn" data-screen="market" onclick="app.openScreen('market')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+            </svg>
+            <span>السوق</span>
+        </button>
+        <button class="nav-btn" data-screen="settings" onclick="app.openScreen('settings')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+            <span>الإعدادات</span>
+        </button>
+    </nav>
+
+    <script src="js/storage.js"></script>
+    <script src="js/market.js"></script>
+    <script src="js/ai/technical.js"></script>
+    <script src="js/ai/assistant.js"></script>
+    <script src="js/charts/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
